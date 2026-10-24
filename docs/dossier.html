@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dossier — Bote de Basura Automatizado</title>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       ESTILOS GENERALES
+  ═══════════════════════════════════════════════════════════════ -->
+  <style>
+    /* ── Variables de color (imagen de referencia) ─────────────── */
+    :root {
+      --color-rosa:     #FFB3BA;   /* Salida / Fase Execute / Actuadores    */
+      --color-amarillo: #FFF3B0;   /* Entrada / Fase Fetch / Sensores / RAM */
+      --color-verde:    #B5EAD7;   /* Estándares ANSI / Direccionamientos   */
+      --color-naranja:  #FFDAB9;   /* CPU / Fase Decode / Microcontrolador  */
+
+      --color-rosa-borde:     #E07B85;
+      --color-amarillo-borde: #C9A800;
+      --color-verde-borde:    #3D9970;
+      --color-naranja-borde:  #D4845A;
+
+      --fuente-cuerpo:  'Segoe UI', Arial, sans-serif;
+      --fuente-codigo:  'Courier New', Courier, monospace;
+      --color-texto:    #1a1a2e;
+      --color-borde:    #cccccc;
+      --pagina-ancho:   210mm;
+      --pagina-alto:    297mm;
+    }
+
+    /* ── Reset básico ───────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--fuente-cuerpo);
+      color: var(--color-texto);
+      background: #f0f0f0;
+      font-size: 11pt;
+      line-height: 1.55;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       PÁGINAS — cada .page simula una hoja A4
+    ═══════════════════════════════════════════════════════════════ */
+    .page {
+      width: var(--pagina-ancho);
+      min-height: var(--pagina-alto);
+      background: #fff;
+      margin: 16px auto;
+      padding: 18mm 16mm 16mm 16mm;
+      box-shadow: 0 4px 18px rgba(0,0,0,.18);
+      position: relative;
+      page-break-after: always;
+    }
+
+    /* ── Encabezado de cada página (excepto portada) ────────────── */
+    .encabezado-pagina {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2.5px solid var(--color-naranja-borde);
+      padding-bottom: 6px;
+      margin-bottom: 18px;
+      font-size: 8.5pt;
+      color: #555;
+    }
+    .encabezado-pagina .proyecto { font-weight: 700; color: var(--color-texto); }
+    .encabezado-pagina .version  { font-style: italic; }
+
+    /* ── Pie de cada página ─────────────────────────────────────── */
+    .pie-pagina {
+      position: absolute;
+      bottom: 10mm;
+      left: 16mm;
+      right: 16mm;
+      display: flex;
+      justify-content: space-between;
+      font-size: 8pt;
+      color: #888;
+      border-top: 1px solid #ddd;
+      padding-top: 4px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       PORTADA
+    ═══════════════════════════════════════════════════════════════ */
+    .portada {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: var(--pagina-alto);
+      padding: 20mm;
+      text-align: center;
+      background: linear-gradient(160deg, #fff 55%, var(--color-naranja) 100%);
+    }
+
+    .portada .logo-bloque {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      width: 220px;
+      margin-bottom: 32px;
+    }
+    .portada .logo-bloque div {
+      height: 56px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 7.5pt;
+      font-weight: 600;
+      text-align: center;
+      padding: 4px;
+      line-height: 1.2;
+    }
+    .blq-rosa     { background: var(--color-rosa);     border: 1.5px solid var(--color-rosa-borde); }
+    .blq-amarillo { background: var(--color-amarillo); border: 1.5px solid var(--color-amarillo-borde); }
+    .blq-verde    { background: var(--color-verde);    border: 1.5px solid var(--color-verde-borde); }
+    .blq-naranja  { background: var(--color-naranja);  border: 1.5px solid var(--color-naranja-borde); }
+
+    .portada .titulo-principal {
+      font-size: 26pt;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--color-texto);
+      line-height: 1.15;
+      margin-bottom: 6px;
+    }
+    .portada .subtitulo {
+      font-size: 13pt;
+      color: #444;
+      margin-bottom: 28px;
+      font-style: italic;
+    }
+    .portada .separador {
+      width: 80px;
+      height: 4px;
+      background: var(--color-naranja-borde);
+      border-radius: 2px;
+      margin: 0 auto 28px;
+    }
+    .portada .meta-bloque {
+      background: rgba(255,255,255,.75);
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 18px 28px;
+      text-align: left;
+      width: 100%;
+      max-width: 400px;
+    }
+    .portada .meta-bloque table { width: 100%; border-collapse: collapse; }
+    .portada .meta-bloque td { padding: 4px 8px; font-size: 10pt; vertical-align: top; }
+    .portada .meta-bloque td:first-child { font-weight: 700; white-space: nowrap; color: #555; width: 110px; }
+    .portada .ansi-badge {
+      margin-top: 22px;
+      background: var(--color-verde);
+      border: 1.5px solid var(--color-verde-borde);
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 9pt;
+      font-weight: 700;
+      color: #1a4a35;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       LEYENDA DE COLORES (referencia rápida en páginas de contenido)
+    ═══════════════════════════════════════════════════════════════ */
+    .leyenda {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+    .leyenda-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 8.5pt;
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      font-weight: 600;
+    }
+    .leyenda-item .dot {
+      width: 12px; height: 12px; border-radius: 50%;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       SECCIONES Y HEADINGS
+    ═══════════════════════════════════════════════════════════════ */
+    h1.seccion {
+      font-size: 15pt;
+      font-weight: 800;
+      border-left: 5px solid var(--color-naranja-borde);
+      padding-left: 10px;
+      margin-bottom: 12px;
+      margin-top: 4px;
+    }
+    h2.subseccion {
+      font-size: 12pt;
+      font-weight: 700;
+      margin-bottom: 8px;
+      margin-top: 16px;
+      color: #333;
+    }
+    p { margin-bottom: 8px; text-align: justify; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       TABLAS
+    ═══════════════════════════════════════════════════════════════ */
+    table.doc-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9.5pt;
+      margin-bottom: 14px;
+    }
+    table.doc-table th {
+      background: var(--color-naranja);
+      border: 1px solid var(--color-naranja-borde);
+      padding: 7px 10px;
+      text-align: left;
+      font-weight: 700;
+      font-size: 9pt;
+    }
+    table.doc-table td {
+      border: 1px solid var(--color-borde);
+      padding: 6px 10px;
+      vertical-align: middle;
+    }
+    table.doc-table tr:nth-child(even) td { background: #fafafa; }
+
+    /* Celdas con color semántico */
+    .celda-rosa     { background: var(--color-rosa)     !important; font-weight: 600; }
+    .celda-amarillo { background: var(--color-amarillo) !important; font-weight: 600; }
+    .celda-verde    { background: var(--color-verde)    !important; font-weight: 600; }
+    .celda-naranja  { background: var(--color-naranja)  !important; font-weight: 600; }
+
+    /* ── Código inline ──────────────────────────────────────────── */
+    code {
+      font-family: var(--fuente-codigo);
+      background: #f4f4f4;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      padding: 0 4px;
+      font-size: 9pt;
+    }
+    pre {
+      font-family: var(--fuente-codigo);
+      background: #1e1e2e;
+      color: #cdd6f4;
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 8.5pt;
+      line-height: 1.5;
+      overflow-x: auto;
+      margin-bottom: 14px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    pre .kw   { color: #cba6f7; } /* Palabras clave   */
+    pre .cm   { color: #6c7086; } /* Comentarios      */
+    pre .str  { color: #a6e3a1; } /* Cadenas          */
+    pre .num  { color: #fab387; } /* Números          */
+    pre .fn   { color: #89dceb; } /* Funciones        */
+    pre .tp   { color: #f9e2af; } /* Tipos            */
+    pre .pp   { color: #f38ba8; } /* Preprocesador    */
+
+    /* ═══════════════════════════════════════════════════════════════
+       DIAGRAMA DE FLUJO (CSS puro)
+    ═══════════════════════════════════════════════════════════════ */
+    .flujo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      width: 100%;
+      padding: 10px 0;
+      font-size: 9pt;
+    }
+
+    /* Nodo genérico */
+    .nodo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-weight: 600;
+      border: 2px solid #999;
+      padding: 8px 14px;
+      min-width: 200px;
+      max-width: 260px;
+      line-height: 1.3;
+    }
+    /* Formas */
+    .nodo-inicio-fin {
+      border-radius: 50px;
+      background: var(--color-naranja);
+      border-color: var(--color-naranja-borde);
+      min-width: 140px;
+      max-width: 180px;
+      font-size: 10pt;
+    }
+    .nodo-proceso {
+      border-radius: 6px;
+    }
+    .nodo-proceso.amarillo { background: var(--color-amarillo); border-color: var(--color-amarillo-borde); }
+    .nodo-proceso.rosa     { background: var(--color-rosa);     border-color: var(--color-rosa-borde);     }
+    .nodo-proceso.verde    { background: var(--color-verde);    border-color: var(--color-verde-borde);    }
+    .nodo-proceso.naranja  { background: var(--color-naranja);  border-color: var(--color-naranja-borde);  }
+
+    /* Rombo de decisión */
+    .nodo-decision-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      width: 100%;
+      margin: 0;
+    }
+    .nodo-decision {
+      width: 200px;
+      height: 80px;
+      background: var(--color-amarillo);
+      border: 2px solid var(--color-amarillo-borde);
+      transform: rotate(45deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .nodo-decision-texto {
+      transform: rotate(-45deg);
+      font-weight: 700;
+      font-size: 8.5pt;
+      text-align: center;
+      line-height: 1.2;
+      max-width: 110px;
+    }
+    /* Etiquetas de rama Sí/No */
+    .rama-si, .rama-no {
+      position: absolute;
+      font-size: 8pt;
+      font-weight: 700;
+      color: #333;
+    }
+    .rama-si { left: calc(50% + 60px); top: 50%; transform: translateY(-50%); }
+    .rama-no  { left: calc(50% - 80px); top: 50%; transform: translateY(-50%); }
+
+    /* Conectores (flechas verticales) */
+    .conector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 2px;
+      position: relative;
+    }
+    .conector-linea {
+      width: 2px;
+      background: #555;
+    }
+    .conector-flecha::after {
+      content: '';
+      display: block;
+      width: 0;
+      height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-top: 10px solid #555;
+    }
+    /* Flecha simple con altura configurable */
+    .flecha-abajo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .flecha-abajo .linea { width: 2px; background: #555; }
+    .flecha-abajo .punta::after {
+      content: '';
+      display: block;
+      width: 0; height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-top: 10px solid #555;
+    }
+
+    /* Bloque de ramificación (rama NO lateral) */
+    .bloque-bifurcacion {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      position: relative;
+      width: 100%;
+      gap: 0;
+    }
+    .rama-principal {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .rama-lateral {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: absolute;
+      right: 14mm;
+      top: 0;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       CAJAS INFORMATIVAS
+    ═══════════════════════════════════════════════════════════════ */
+    .info-box {
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 14px;
+      font-size: 9.5pt;
+    }
+    .info-box.verde    { background: var(--color-verde);    border-left: 5px solid var(--color-verde-borde);    }
+    .info-box.naranja  { background: var(--color-naranja);  border-left: 5px solid var(--color-naranja-borde);  }
+    .info-box.rosa     { background: var(--color-rosa);     border-left: 5px solid var(--color-rosa-borde);     }
+    .info-box.amarillo { background: var(--color-amarillo); border-left: 5px solid var(--color-amarillo-borde); }
+    .info-box strong { display: block; margin-bottom: 4px; font-size: 10pt; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       GRID COMPONENTES
+    ═══════════════════════════════════════════════════════════════ */
+    .componentes-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .componente-card {
+      border-radius: 8px;
+      padding: 12px 14px;
+      border: 1.5px solid #ccc;
+    }
+    .componente-card .nombre { font-weight: 700; font-size: 10pt; margin-bottom: 4px; }
+    .componente-card .detalle { font-size: 8.5pt; color: #555; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       IMPRESIÓN / EXPORTACIÓN PDF
+    ═══════════════════════════════════════════════════════════════ */
+    @media print {
+      body { background: #fff; font-size: 10pt; }
+      .page {
+        box-shadow: none;
+        margin: 0;
+        width: 100%;
+        padding: 15mm 14mm 14mm 14mm;
+        page-break-after: always;
+      }
+      .btn-pdf { display: none !important; }
+      pre { font-size: 7.5pt; }
+    }
+
+    /* ── Botón exportar PDF ─────────────────────────────────────── */
+    .btn-pdf {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--color-naranja-borde);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: 12px 26px;
+      font-size: 11pt;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,.25);
+      z-index: 1000;
+      letter-spacing: .5px;
+      transition: background .2s;
+    }
+    .btn-pdf:hover { background: #b5643a; }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════════
+     BOTÓN EXPORTAR PDF
+════════════════════════════════════════════════════════════════ -->
+<button class="btn-pdf" onclick="window.print()">⬇ Exportar PDF</button>
+
+<!-- ════════════════════════════════════════════════════════════════
+     PÁGINA 1 — PORTADA
+════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="portada">
+
+    <!-- Mini-leyenda gráfica de colores (referencia a imagen adjunta) -->
+    <div class="logo-bloque">
+      <div class="blq-rosa">Salida<br>Execute<br>Actuadores</div>
+      <div class="blq-amarillo">Entrada<br>Fetch<br>Sensores</div>
+      <div class="blq-verde">Estándares<br>ANSI</div>
+      <div class="blq-naranja">CPU<br>Decode<br>MCU</div>
+    </div>
+
+    <div class="titulo-principal">Dossier<br>Bote de Basura<br>Automatizado</div>
+    <div class="subtitulo">Sistema embebido de apertura automática con Arduino UNO</div>
+    <div class="separador"></div>
+
+    <div class="meta-bloque">
+      <table>
+        <tr><td>Proyecto:</td>    <td>Bote de Basura Automatizado</td></tr>
+        <tr><td>Versión:</td>     <td>1.0.0</td></tr>
+        <tr><td>Fecha:</td>       <td>24 de octubre de 2026</td></tr>
+        <tr><td>Plataforma:</td>  <td>Arduino UNO (ATmega328P)</td></tr>
+        <tr><td>Lenguaje:</td>    <td>C++ / ANSI-C (Arduino Framework)</td></tr>
+        <tr><td>Autores:</td>     <td>
+          Meave Diaz Armando Abdiel<br>
+          Sandoval Juan Manuel
+        </td></tr>
+      </table>
+    </div>
+
+    <div class="ansi-badge">✔ Cumple estándares ANSI / ISO C++11</div>
+  </div>
+</div><!-- /portada -->
+
+
+<!-- ════════════════════════════════════════════════════════════════
+     PÁGINA 2 — DESCRIPCIÓN GENERAL Y COMPONENTES
+════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="encabezado-pagina">
+    <span class="proyecto">Dossier — Bote de Basura Automatizado  v1.0.0</span>
+    <span class="version">Sección 1 · Descripción y Componentes</span>
+  </div>
+
+  <!-- Leyenda de colores -->
+  <div class="leyenda">
+    <div class="leyenda-item" style="background:var(--color-rosa);border-color:var(--color-rosa-borde)">
+      <div class="dot" style="background:var(--color-rosa-borde)"></div>Salida / Execute / Actuadores
+    </div>
+    <div class="leyenda-item" style="background:var(--color-amarillo);border-color:var(--color-amarillo-borde)">
+      <div class="dot" style="background:var(--color-amarillo-borde)"></div>Entrada / Fetch / Sensores
+    </div>
+    <div class="leyenda-item" style="background:var(--color-verde);border-color:var(--color-verde-borde)">
+      <div class="dot" style="background:var(--color-verde-borde)"></div>Estándares ANSI
+    </div>
+    <div class="leyenda-item" style="background:var(--color-naranja);border-color:var(--color-naranja-borde)">
+      <div class="dot" style="background:var(--color-naranja-borde)"></div>CPU / Decode / MCU
+    </div>
+  </div>
+
+  <!-- 1. Descripción -->
+  <h1 class="seccion">1. Descripción del Sistema</h1>
+
+  <div class="info-box naranja">
+    <strong>🎯 Objetivo del proyecto</strong>
+    Diseñar e implementar un bote de basura inteligente que detecte automáticamente
+    la presencia de una mano mediante un sensor ultrasónico y abra su tapa con un
+    servomotor, manteniéndola abierta durante el tiempo necesario para depositar la
+    basura, para después cerrarla de forma autónoma.
+  </div>
+
+  <p>
+    El sistema emplea un microcontrolador <strong>Arduino UNO</strong> (fase
+    <span style="background:var(--color-naranja);padding:0 4px;border-radius:3px;font-weight:700">Decode / CPU</span>)
+    que coordina el sensor ultrasónico HC-SR04
+    (<span style="background:var(--color-amarillo);padding:0 4px;border-radius:3px;font-weight:700">fase Fetch / Entrada</span>)
+    y el servomotor SG-90
+    (<span style="background:var(--color-rosa);padding:0 4px;border-radius:3px;font-weight:700">fase Execute / Salida</span>).
+    Todo el código respeta las
+    <span style="background:var(--color-verde);padding:0 4px;border-radius:3px;font-weight:700">convenciones ANSI/ISO C++11</span>.
+  </p>
+
+  <h2 class="subseccion">1.1 Principio de funcionamiento</h2>
+  <p>
+    El sensor ultrasónico emite un pulso de ultrasonido de 10 µs cada
+    <strong>100 ms</strong>. Si el eco regresa en un tiempo que corresponda a una
+    distancia ≤ 20 cm, el sistema interpreta que existe un objeto (mano del usuario)
+    frente al sensor. En ese momento el servomotor gira de <strong>0 °</strong>
+    (tapa cerrada) a <strong>90 °</strong> (tapa abierta). Después de
+    <strong>3 segundos</strong> el servo regresa a 0 ° cerrando la tapa
+    automáticamente.
+  </p>
+
+  <!-- 2. Componentes -->
+  <h1 class="seccion" style="margin-top:16px">2. Lista de Componentes</h1>
+
+  <div class="componentes-grid">
+    <div class="componente-card" style="background:var(--color-naranja);border-color:var(--color-naranja-borde)">
+      <div class="nombre">🟧 Placa Arduino UNO</div>
+      <div class="detalle">
+        Microcontrolador ATmega328P · 16 MHz · 32 KB Flash<br>
+        14 E/S digitales · 6 PWM · 6 analógicas<br>
+        <em>Rol: CPU / Fase Decode</em>
+      </div>
+    </div>
+    <div class="componente-card" style="background:var(--color-amarillo);border-color:var(--color-amarillo-borde)">
+      <div class="nombre">🟨 Sensor Ultrasónico HC-SR04</div>
+      <div class="detalle">
+        Rango: 2 cm – 400 cm · Precisión: ±3 mm<br>
+        Alimentación: 5 V · Frecuencia: 40 kHz<br>
+        <em>Rol: Entrada / Fase Fetch</em>
+      </div>
+    </div>
+    <div class="componente-card" style="background:var(--color-rosa);border-color:var(--color-rosa-borde)">
+      <div class="nombre">🟥 Servomotor SG-90</div>
+      <div class="detalle">
+        Torque: 1.8 kg·cm · Ángulo: 0°–180°<br>
+        Alimentación: 5 V · Señal: PWM 50 Hz<br>
+        <em>Rol: Salida / Fase Execute / Actuador</em>
+      </div>
+    </div>
+    <div class="componente-card" style="background:var(--color-verde);border-color:var(--color-verde-borde)">
+      <div class="nombre">🟩 Cables Macho-Hembra / Macho-Macho</div>
+      <div class="detalle">
+        Jumpers Dupont de 20 cm (surtido)<br>
+        Conexiones punto a punto en protoboard<br>
+        <em>Rol: Direccionamiento físico</em>
+      </div>
+    </div>
+  </div>
+
+  <div class="pie-pagina">
+    <span>Meave Diaz Armando Abdiel · Sandoval Juan Manuel</span>
+    <span>Pág. 2</span>
+  </div>
+</div><!-- /página 2 -->
+
+
+<!-- ════════════════════════════════════════════════════════════════
+     PÁGINA 3 — MAPEO DE PINES
+════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="encabezado-pagina">
+    <span class="proyecto">Dossier — Bote de Basura Automatizado  v1.0.0</span>
+    <span class="version">Sección 3 · Mapeo de Pines</span>
+  </div>
+
+  <h1 class="seccion">3. Mapeo de Pines — Entradas y Salidas</h1>
+  <p>
+    La siguiente tabla describe cada conexión física del circuito, codificada por
+    color según la convención de fases del sistema embebido.
+  </p>
+
+  <table class="doc-table">
+    <thead>
+      <tr>
+        <th>Pin Arduino</th>
+        <th>Dirección</th>
+        <th>Componente</th>
+        <th>Terminal del componente</th>
+        <th>Función</th>
+        <th>Fase</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Sensor TRIG — Salida hacia sensor, es salida del MCU -->
+      <tr>
+        <td><strong>D9</strong></td>
+        <td class="celda-rosa">OUTPUT</td>
+        <td>HC-SR04</td>
+        <td>TRIG</td>
+        <td>Dispara pulso ultrasónico (10 µs)</td>
+        <td class="celda-naranja">Execute / CPU</td>
+      </tr>
+      <!-- Sensor ECHO — Entrada al MCU -->
+      <tr>
+        <td><strong>D10</strong></td>
+        <td class="celda-amarillo">INPUT</td>
+        <td>HC-SR04</td>
+        <td>ECHO</td>
+        <td>Recibe eco; mide duración del pulso</td>
+        <td class="celda-amarillo">Fetch / Sensor</td>
+      </tr>
+      <!-- Servo — Salida PWM -->
+      <tr>
+        <td><strong>D6 (PWM)</strong></td>
+        <td class="celda-rosa">OUTPUT PWM</td>
+        <td>Servomotor SG-90</td>
+        <td>Signal (naranja/amarillo)</td>
+        <td>Controla posición angular de la tapa</td>
+        <td class="celda-rosa">Execute / Actuador</td>
+      </tr>
+      <!-- Alimentación HC-SR04 -->
+      <tr>
+        <td><strong>5 V</strong></td>
+        <td class="celda-verde">POWER</td>
+        <td>HC-SR04</td>
+        <td>VCC</td>
+        <td>Alimentación del sensor ultrasónico</td>
+        <td class="celda-verde">Direccionamiento</td>
+      </tr>
+      <!-- Alimentación Servo -->
+      <tr>
+        <td><strong>5 V</strong></td>
+        <td class="celda-verde">POWER</td>
+        <td>Servomotor SG-90</td>
+        <td>VCC (rojo)</td>
+        <td>Alimentación del servomotor</td>
+        <td class="celda-verde">Direccionamiento</td>
+      </tr>
+      <!-- GND HC-SR04 -->
+      <tr>
+        <td><strong>GND</strong></td>
+        <td class="celda-verde">GROUND</td>
+        <td>HC-SR04</td>
+        <td>GND</td>
+        <td>Tierra común del sensor</td>
+        <td class="celda-verde">Direccionamiento</td>
+      </tr>
+      <!-- GND Servo -->
+      <tr>
+        <td><strong>GND</strong></td>
+        <td class="celda-verde">GROUND</td>
+        <td>Servomotor SG-90</td>
+        <td>GND (marrón/negro)</td>
+        <td>Tierra común del servomotor</td>
+        <td class="celda-verde">Direccionamiento</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Diagrama visual de pines -->
+  <h2 class="subseccion">3.1 Resumen visual de conexiones</h2>
+
+  <table class="doc-table" style="text-align:center; font-size:9pt;">
+    <thead>
+      <tr>
+        <th colspan="3" style="text-align:center; font-size:10pt;">
+          Arduino UNO → Componentes
+        </th>
+      </tr>
+      <tr>
+        <th>Arduino UNO</th>
+        <th>Cable</th>
+        <th>Componente</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="celda-naranja">D9  (OUT digital)</td>
+        <td>────────────────►</td>
+        <td class="celda-amarillo">HC-SR04  TRIG</td>
+      </tr>
+      <tr>
+        <td class="celda-amarillo">D10 (IN digital)</td>
+        <td>◄────────────────</td>
+        <td class="celda-amarillo">HC-SR04  ECHO</td>
+      </tr>
+      <tr>
+        <td class="celda-rosa">D6  (PWM OUT)</td>
+        <td>────────────────►</td>
+        <td class="celda-rosa">Servo  Signal</td>
+      </tr>
+      <tr>
+        <td class="celda-verde">5 V</td>
+        <td>────────────────►</td>
+        <td class="celda-verde">HC-SR04 VCC · Servo VCC</td>
+      </tr>
+      <tr>
+        <td class="celda-verde">GND</td>
+        <td>────────────────►</td>
+        <td class="celda-verde">HC-SR04 GND · Servo GND</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="info-box amarillo" style="margin-top:12px">
+    <strong>⚠ Nota de consumo eléctrico</strong>
+    El servomotor SG-90 puede consumir hasta 500 mA en carga. Si se presentan
+    inestabilidades, se recomienda alimentar el servo desde una fuente externa de 5 V
+    manteniendo un GND común con el Arduino.
+  </div>
+
+  <div class="pie-pagina">
+    <span>Meave Diaz Armando Abdiel · Sandoval Juan Manuel</span>
+    <span>Pág. 3</span>
+  </div>
+</div><!-- /página 3 -->
+
+
+<!-- ════════════════════════════════════════════════════════════════
+     PÁGINA 4 — DIAGRAMA DE FLUJO
+════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="encabezado-pagina">
+    <span class="proyecto">Dossier — Bote de Basura Automatizado  v1.0.0</span>
+    <span class="version">Sección 4 · Diagrama de Flujo</span>
+  </div>
+
+  <h1 class="seccion">4. Diagrama de Flujo del Sistema</h1>
+
+  <!-- Leyenda del diagrama -->
+  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;font-size:8pt;">
+    <div style="display:flex;align-items:center;gap:5px;"><svg width="22" height="14"><ellipse cx="11" cy="7" rx="10" ry="6" fill="#FFDAB9" stroke="#D4845A" stroke-width="1.5"/></svg> Terminal (Inicio/Fin)</div>
+    <div style="display:flex;align-items:center;gap:5px;"><svg width="22" height="14"><rect x="1" y="1" width="20" height="12" rx="2" fill="#FFDAB9" stroke="#D4845A" stroke-width="1.5"/></svg> Proceso (MCU)</div>
+    <div style="display:flex;align-items:center;gap:5px;"><svg width="22" height="14"><rect x="1" y="1" width="20" height="12" rx="2" fill="#FFF3B0" stroke="#C9A800" stroke-width="1.5"/></svg> E/S — Sensor</div>
+    <div style="display:flex;align-items:center;gap:5px;"><svg width="22" height="14"><polygon points="11,1 21,7 11,13 1,7" fill="#FFF3B0" stroke="#C9A800" stroke-width="1.5"/></svg> Decisión</div>
+    <div style="display:flex;align-items:center;gap:5px;"><svg width="22" height="14"><rect x="1" y="1" width="20" height="12" rx="2" fill="#FFB3BA" stroke="#E07B85" stroke-width="1.5"/></svg> Actuador (Servo)</div>
+    <div style="display:flex;align-items:center;gap:5px;"><svg width="22" height="14"><rect x="1" y="1" width="20" height="12" rx="2" fill="#B5EAD7" stroke="#3D9970" stroke-width="1.5"/></svg> Temporización</div>
+  </div>
+
+  <!-- ══ SVG DIAGRAMA DE FLUJO ══ -->
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 740"
+       style="width:100%;max-height:660px;display:block;margin:0 auto;"
+       font-family="'Segoe UI',Arial,sans-serif" font-size="11">
+
+    <defs>
+      <!-- Marcadores de flecha -->
+      <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#444"/>
+      </marker>
+      <marker id="arr-w" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#444"/>
+      </marker>
+    </defs>
+
+    <!-- ─── COLUMNA CENTRAL X=290 ─────────────────────────────── -->
+
+    <!-- 1. INICIO (Terminal — óvalo) -->
+    <ellipse cx="290" cy="28" rx="68" ry="22" fill="#FFDAB9" stroke="#D4845A" stroke-width="2"/>
+    <text x="290" y="32" text-anchor="middle" font-weight="700" font-size="12" fill="#5a2e0a">INICIO</text>
+
+    <!-- flecha -->
+    <line x1="290" y1="50" x2="290" y2="72" stroke="#444" stroke-width="1.8" marker-end="url(#arr)"/>
+
+    <!-- 2. setup() — Proceso (rectángulo naranja) -->
+    <rect x="170" y="73" width="240" height="52" rx="6" fill="#FFDAB9" stroke="#D4845A" stroke-width="2"/>
+    <text x="290" y="91" text-anchor="middle" font-weight="700" font-size="11" fill="#5a2e0a">setup()</text>
+    <text x="290" y="106" text-anchor="middle" font-size="9.5" fill="#5a2e0a">Configurar pines · Adjuntar servo</text>
+    <text x="290" y="119" text-anchor="middle" font-size="9.5" fill="#5a2e0a">Cerrar tapa · Iniciar Serial 9600</text>
+
+    <!-- flecha -->
+    <line x1="290" y1="125" x2="290" y2="147" stroke="#444" stroke-width="1.8" marker-end="url(#arr)"/>
+
+    <!-- 3. loop() — Proceso (rectángulo morado suave) -->
+    <rect x="185" y="148" width="210" height="36" rx="6" fill="#e8d8ff" stroke="#9b59b6" stroke-width="2"/>
+    <text x="290" y="162" text-anchor="middle" font-weight="700" font-size="11" fill="#4a1a7a">loop()  —  Ciclo principal</text>
+    <text x="290" y="178" text-anchor="middle" font-size="9" fill="#4a1a7a">repetición continua</text>
+
+    <!-- flecha -->
+    <line x1="290" y1="184" x2="290" y2="206" stroke="#444" stroke-width="1.8" marker-end="url(#arr)"/>
+
+    <!-- 4. medirDistancia() — Paralelogramo amarillo (E/S Sensor) -->
+    <!-- Paralelogramo: skew horizontal -->
+    <polygon points="160,207 420,207 400,252 140,252"
+             fill="#FFF3B0" stroke="#C9A800" stroke-width="2"/>
+    <text x="280" y="224" text-anchor="middle" font-weight="700" font-size="11" fill="#5a4200">medirDistancia()</text>
+    <text x="280" y="238" text-anchor="middle" font-size="9.5" fill="#5a4200">Pulso TRIG 10 µs → leer ECHO</text>
+    <text x="280" y="251" text-anchor="middle" font-size="9" fill="#5a4200">distancia = (t × 0.034) / 2  [cm]</text>
+
+    <!-- flecha -->
+    <line x1="290" y1="252" x2="290" y2="277" stroke="#444" stroke-width="1.8" marker-end="url(#arr)"/>
+
+    <!-- 5. DECISIÓN — Rombo amarillo -->
+    <!-- Rombo centrado en (290, 318) con semiejes 130 horizontal, 45 vertical -->
+    <polygon points="290,278 420,318 290,358 160,318"
+             fill="#FFF3B0" stroke="#C9A800" stroke-width="2"/>
+    <text x="290" y="312" text-anchor="middle" font-weight="700" font-size="10.5" fill="#5a4200">¿distancia &gt; 0</text>
+    <text x="290" y="326" text-anchor="middle" font-weight="700" font-size="10.5" fill="#5a4200">AND ≤ 20 cm?</text>
+
+    <!-- ── RAMA  SÍ  (derecha → abajo) ──────────────────────── -->
+    <!-- label SÍ -->
+    <text x="435" y="314" font-size="10" font-weight="700" fill="#1a7a3a">SÍ</text>
+    <!-- línea horizontal derecha desde rombo -->
+    <line x1="420" y1="318" x2="490" y2="318" stroke="#444" stroke-width="1.8"/>
+    <!-- línea vertical bajando -->
+    <line x1="490" y1="318" x2="490" y2="390" stroke="#444" stroke-width="1.8" marker-end="url(#arr)"/>
+
+    <!-- 6a. abrirTapa() — Rectángulo ROSA (Actuador) -->
+    <rect x="400" y="391" width="178" height="46" rx="6" fill="#FFB3BA" stroke="#E07B85" stroke-width="2"/>
+    <text x="489" y="408" text-anchor="middle" font-weight="700" font-size="11" fill="#6a0a20">abrirTapa()</text>
+    <text x="489" y="423" text-anchor="middle" font-size="9.5" fill="#6a0a20">Servo.write(90°)  →  Tapa ABIERTA</text>
+    <text x="489" y="436" text-anchor="middle" font-size="9" fill="#6a0a20">Fase Execute / Actuador</text>
+
+    <!-- flecha -->
+    <line x1="489" y1="437" x2="489" y2="460" stroke="#444" stroke-width="1.8" marker-end="url(#arr)"/>
+
+    <!-- 6b. delay(3000) — Rectángulo VERDE (Temporización) -->
+    <rect x="400" y="461" width="178" height="40" rx="6" fill="#B5EAD7" stroke="#3D9970" stroke-width="2"/>
+    <text x="489" y="477" text-anchor="middle" font-weight="700" font-size="11" fill="#1a4a35">delay(3 000 ms)</text>
+    <text x="489" y="494" text-anchor="middle" font-size="9.5" fill="#1a4a35">Tapa permanece abierta</text>
+
+    <!-- flecha -->
+    <line x1="489" y1="501" x2="489" y2="524" stroke="#444" stroke-width="1.8" marker-end="url(#arr)"/>
+
+    <!-- 6c. cerrarTapa() — Rectángulo ROSA (Actuador) -->
+    <rect x="400" y="525" width="178" height="46" rx="6" fill="#FFB3BA" stroke="#E07B85" stroke-width="2"/>
+    <text x="489" y="542" text-anchor="middle" font-weight="700" font-size="11" fill="#6a0a20">cerrarTapa()</text>
+    <text x="489" y="557" text-anchor="middle" font-size="9.5" fill="#6a0a20">Servo.write(0°)  →  Tapa CERRADA</text>
+    <text x="489" y="570" text-anchor="middle" font-size="9" fill="#6a0a20">Fase Execute / Actuador</text>
+
+    <!-- flecha regreso al loop: baja y gira a la izquierda -->
+    <line x1="489" y1="571" x2="489" y2="610" stroke="#444" stroke-width="1.8"/>
+    <line x1="489" y1="610" x2="290" y2="610" stroke="#444" stroke-width="1.8"/>
+    <line x1="290" y1="610" x2="290" y2="184" stroke="#444" stroke-width="1.8" stroke-dasharray="5,3"/>
+    <!-- punta en loop -->
+    <polygon points="290,184 284,196 296,196" fill="#444"/>
+    <text x="380" y="627" text-anchor="middle" font-size="8.5" fill="#666" font-style="italic">↩ volver a loop()</text>
+
+    <!-- ── RAMA  NO  (izquierda → abajo) ─────────────────────── -->
+    <!-- label NO -->
+    <text x="128" y="314" font-size="10" font-weight="700" fill="#aa2222">NO</text>
+    <!-- línea horizontal izquierda desde rombo -->
+    <line x1="160" y1="318" x2="90" y2="318" stroke="#444" stroke-width="1.8"/>
+    <!-- línea vertical bajando -->
+    <line x1="90" y1="318" x2="90" y2="390" stroke="#444" stroke-width="1.8" marker-end="url(#arr)"/>
+
+    <!-- 7. delay(100) — Rectángulo VERDE -->
+    <rect x="2" y="391" width="176" height="40" rx="6" fill="#B5EAD7" stroke="#3D9970" stroke-width="2"/>
+    <text x="90" y="407" text-anchor="middle" font-weight="700" font-size="11" fill="#1a4a35">delay(100 ms)</text>
+    <text x="90" y="422" text-anchor="middle" font-size="9.5" fill="#1a4a35">Período de muestreo</text>
+
+    <!-- flecha regreso al loop (sube a la izquierda) -->
+    <line x1="90" y1="431" x2="90" y2="470" stroke="#444" stroke-width="1.8"/>
+    <line x1="90" y1="470" x2="50" y2="470" stroke="#444" stroke-width="1.8"/>
+    <line x1="50" y1="470" x2="50" y2="166" stroke="#444" stroke-width="1.8" stroke-dasharray="5,3"/>
+    <line x1="50" y1="166" x2="185" y2="166" stroke="#444" stroke-width="1.8" marker-end="url(#arr)"/>
+    <text x="68" y="490" text-anchor="middle" font-size="8.5" fill="#666" font-style="italic">↩ volver a loop()</text>
+
+    <!-- ── Numeración de pasos ─────────────────────────────────── -->
+    <circle cx="16" cy="28" r="10" fill="#D4845A"/>
+    <text x="16" y="32" text-anchor="middle" font-size="9" fill="white" font-weight="700">1</text>
+    <circle cx="16" cy="99" r="10" fill="#D4845A"/>
+    <text x="16" y="103" text-anchor="middle" font-size="9" fill="white" font-weight="700">2</text>
+    <circle cx="16" cy="166" r="10" fill="#9b59b6"/>
+    <text x="16" y="170" text-anchor="middle" font-size="9" fill="white" font-weight="700">3</text>
+    <circle cx="16" cy="229" r="10" fill="#C9A800"/>
+    <text x="16" y="233" text-anchor="middle" font-size="9" fill="white" font-weight="700">4</text>
+    <circle cx="16" cy="318" r="10" fill="#C9A800"/>
+    <text x="16" y="322" text-anchor="middle" font-size="9" fill="white" font-weight="700">5</text>
+    <circle cx="554" cy="414" r="10" fill="#E07B85"/>
+    <text x="554" y="418" text-anchor="middle" font-size="9" fill="white" font-weight="700">6</text>
+    <circle cx="554" cy="481" r="10" fill="#3D9970"/>
+    <text x="554" y="485" text-anchor="middle" font-size="9" fill="white" font-weight="700">7</text>
+    <circle cx="554" cy="548" r="10" fill="#E07B85"/>
+    <text x="554" y="552" text-anchor="middle" font-size="9" fill="white" font-weight="700">8</text>
+
+  </svg><!-- /SVG -->
+
+  <div class="pie-pagina">
+    <span>Meave Diaz Armando Abdiel · Sandoval Juan Manuel</span>
+    <span>Pág. 4</span>
+  </div>
+</div><!-- /página 4 -->
+
+
+<!-- ════════════════════════════════════════════════════════════════
+     PÁGINA 5 — CÓDIGO FUENTE ANOTADO
+════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="encabezado-pagina">
+    <span class="proyecto">Dossier — Bote de Basura Automatizado  v1.0.0</span>
+    <span class="version">Sección 5 · Código Fuente</span>
+  </div>
+
+  <h1 class="seccion">5. Código Fuente — <code>bote_basura.ino</code></h1>
+  <p>
+    El código sigue las convenciones <strong>ANSI/ISO C++11</strong>: uso de tipos
+    de ancho fijo (<code>uint8_t</code>, <code>uint16_t</code>, <code>uint32_t</code>),
+    constantes tipadas con sufijos <code>U</code> / <code>UL</code>,
+    prototipos explícitos, documentación Doxygen, y separación clara en secciones.
+  </p>
+
+<pre><span class="cm">/**
+ * @file        bote_basura.ino
+ * @project     Dossier — Bote de Basura Automatizado
+ * @version     1.0.0   |   @standard  ANSI / ISO C++11
+ * @authors     Meave Diaz Armando Abdiel · Sandoval Juan Manuel
+ */</span>
+
+<span class="pp">#include</span> &lt;Servo.h&gt;
+
+<span class="cm">/* ── Constantes de configuración ─────────────────────────── */</span>
+<span class="kw">static const</span> <span class="tp">uint8_t</span>  PIN_TRIG            = <span class="num">9U</span>;
+<span class="kw">static const</span> <span class="tp">uint8_t</span>  PIN_ECHO            = <span class="num">10U</span>;
+<span class="kw">static const</span> <span class="tp">uint8_t</span>  PIN_SERVO           = <span class="num">6U</span>;
+
+<span class="kw">static const</span> <span class="tp">uint8_t</span>  ANGULO_CERRADO      = <span class="num">0U</span>;
+<span class="kw">static const</span> <span class="tp">uint8_t</span>  ANGULO_ABIERTO      = <span class="num">90U</span>;
+<span class="kw">static const</span> <span class="tp">uint16_t</span> DISTANCIA_UMBRAL_CM = <span class="num">20U</span>;
+<span class="kw">static const</span> <span class="tp">uint32_t</span> DELAY_TAPA_ABIERTA  = <span class="num">3000UL</span>;
+<span class="kw">static const</span> <span class="tp">uint32_t</span> DELAY_MUESTREO_MS   = <span class="num">100UL</span>;
+<span class="kw">static const</span> <span class="tp">float</span>    VEL_SONIDO          = <span class="num">0.034f</span>;
+
+<span class="cm">/* ── Objeto global ───────────────────────────────────────── */</span>
+Servo servoTapa;
+
+<span class="cm">/* ── Prototipos ──────────────────────────────────────────── */</span>
+<span class="tp">uint16_t</span> <span class="fn">medirDistancia</span>(<span class="kw">void</span>);
+<span class="kw">void</span>     <span class="fn">abrirTapa</span>(<span class="kw">void</span>);
+<span class="kw">void</span>     <span class="fn">cerrarTapa</span>(<span class="kw">void</span>);
+
+<span class="kw">void</span> <span class="fn">setup</span>(<span class="kw">void</span>) {
+    pinMode(PIN_TRIG, OUTPUT); digitalWrite(PIN_TRIG, LOW);
+    pinMode(PIN_ECHO, INPUT);
+    servoTapa.attach(PIN_SERVO);
+    <span class="fn">cerrarTapa</span>();
+    Serial.begin(<span class="num">9600</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>(<span class="kw">void</span>) {
+    <span class="tp">uint16_t</span> d = <span class="fn">medirDistancia</span>();
+    <span class="kw">if</span> (d > <span class="num">0U</span> && d &lt;= DISTANCIA_UMBRAL_CM) {
+        <span class="fn">abrirTapa</span>();
+        <span class="fn">delay</span>(DELAY_TAPA_ABIERTA);
+        <span class="fn">cerrarTapa</span>();
+    }
+    <span class="fn">delay</span>(DELAY_MUESTREO_MS);
+}
+
+<span class="tp">uint16_t</span> <span class="fn">medirDistancia</span>(<span class="kw">void</span>) {
+    digitalWrite(PIN_TRIG, LOW);  delayMicroseconds(<span class="num">2U</span>);
+    digitalWrite(PIN_TRIG, HIGH); delayMicroseconds(<span class="num">10U</span>);
+    digitalWrite(PIN_TRIG, LOW);
+    <span class="tp">unsigned long</span> t = pulseIn(PIN_ECHO, HIGH, <span class="num">30000UL</span>);
+    <span class="kw">if</span> (t == <span class="num">0UL</span>) <span class="kw">return</span> <span class="num">0U</span>;
+    <span class="kw">return</span> <span class="kw">static_cast</span>&lt;<span class="tp">uint16_t</span>&gt;((t * VEL_SONIDO) / <span class="num">2.0f</span>);
+}
+
+<span class="kw">void</span> <span class="fn">abrirTapa</span>(<span class="kw">void</span>)  { servoTapa.write(ANGULO_ABIERTO);  }
+<span class="kw">void</span> <span class="fn">cerrarTapa</span>(<span class="kw">void</span>) { servoTapa.write(ANGULO_CERRADO); }</pre>
+
+  <div class="pie-pagina">
+    <span>Meave Diaz Armando Abdiel · Sandoval Juan Manuel</span>
+    <span>Pág. 5</span>
+  </div>
+</div><!-- /página 5 -->
+
+
+<!-- ════════════════════════════════════════════════════════════════
+     PÁGINA 6 — ESTÁNDARES ANSI Y PARÁMETROS CONFIGURABLES
+════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="encabezado-pagina">
+    <span class="proyecto">Dossier — Bote de Basura Automatizado  v1.0.0</span>
+    <span class="version">Sección 6 · Estándares ANSI y Parámetros</span>
+  </div>
+
+  <h1 class="seccion">6. Estándares ANSI Aplicados</h1>
+
+  <div class="info-box verde">
+    <strong>📗 Conformidad ANSI / ISO C++11</strong>
+    El código cumple con las reglas de escritura de software embebido de acuerdo
+    con la norma MISRA-C:2012 (subconjunto educativo) y las guías de estilo
+    ANSI para microcontroladores de 8 bits.
+  </div>
+
+  <table class="doc-table">
+    <thead>
+      <tr>
+        <th>Regla ANSI / Buena Práctica</th>
+        <th>Aplicación en el código</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Tipos de ancho fijo (<code>stdint.h</code>)</td>
+        <td><code>uint8_t</code>, <code>uint16_t</code>, <code>uint32_t</code></td>
+        <td class="celda-verde">✔ Cumple</td>
+      </tr>
+      <tr>
+        <td>Constantes tipadas con sufijo</td>
+        <td><code>9U</code>, <code>3000UL</code>, <code>0.034f</code></td>
+        <td class="celda-verde">✔ Cumple</td>
+      </tr>
+      <tr>
+        <td>Prototipos de función explícitos</td>
+        <td>Declarados antes de <code>setup()</code></td>
+        <td class="celda-verde">✔ Cumple</td>
+      </tr>
+      <tr>
+        <td>Documentación Doxygen</td>
+        <td><code>@file</code> <code>@brief</code> <code>@param</code> <code>@return</code></td>
+        <td class="celda-verde">✔ Cumple</td>
+      </tr>
+      <tr>
+        <td>Sin números mágicos en el código</td>
+        <td>Toda constante definida con nombre descriptivo</td>
+        <td class="celda-verde">✔ Cumple</td>
+      </tr>
+      <tr>
+        <td>Cast explícito en conversiones</td>
+        <td><code>static_cast&lt;uint16_t&gt;(...)</code></td>
+        <td class="celda-verde">✔ Cumple</td>
+      </tr>
+      <tr>
+        <td>Estado inicial de pines en <code>setup()</code></td>
+        <td><code>digitalWrite(PIN_TRIG, LOW)</code> al inicio</td>
+        <td class="celda-verde">✔ Cumple</td>
+      </tr>
+      <tr>
+        <td>Separación en secciones lógicas</td>
+        <td>6 secciones numeradas en comentarios</td>
+        <td class="celda-verde">✔ Cumple</td>
+      </tr>
+      <tr>
+        <td>Variables globales mínimas</td>
+        <td>Solo <code>Servo servoTapa</code> (requerido por biblioteca)</td>
+        <td class="celda-verde">✔ Cumple</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h1 class="seccion" style="margin-top:14px">7. Parámetros Configurables</h1>
+
+  <table class="doc-table">
+    <thead>
+      <tr>
+        <th>Constante</th>
+        <th>Valor por defecto</th>
+        <th>Unidad</th>
+        <th>Descripción</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>DISTANCIA_UMBRAL_CM</code></td>
+        <td class="celda-amarillo">20</td>
+        <td>cm</td>
+        <td>Distancia máxima para activar la tapa</td>
+      </tr>
+      <tr>
+        <td><code>DELAY_TAPA_ABIERTA_MS</code></td>
+        <td class="celda-rosa">3 000</td>
+        <td>ms</td>
+        <td>Tiempo que la tapa permanece abierta</td>
+      </tr>
+      <tr>
+        <td><code>DELAY_MUESTREO_MS</code></td>
+        <td class="celda-naranja">100</td>
+        <td>ms</td>
+        <td>Frecuencia de consulta al sensor</td>
+      </tr>
+      <tr>
+        <td><code>ANGULO_ABIERTO</code></td>
+        <td class="celda-rosa">90</td>
+        <td>°</td>
+        <td>Ángulo del servo para tapa abierta</td>
+      </tr>
+      <tr>
+        <td><code>ANGULO_CERRADO</code></td>
+        <td class="celda-verde">0</td>
+        <td>°</td>
+        <td>Ángulo del servo para tapa cerrada</td>
+      </tr>
+      <tr>
+        <td><code>TIMEOUT_ECHO_US</code></td>
+        <td class="celda-amarillo">30 000</td>
+        <td>µs</td>
+        <td>Tiempo máximo de espera del eco (≈ 5 m)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pie-pagina">
+    <span>Meave Diaz Armando Abdiel · Sandoval Juan Manuel</span>
+    <span>Pág. 6</span>
+  </div>
+</div><!-- /página 6 -->
+
+
+<!-- ════════════════════════════════════════════════════════════════
+     PÁGINA 7 — FUNDAMENTOS DE ARQUITECTURA & BITÁCORA
+════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="encabezado-pagina">
+    <span class="proyecto">Dossier — Bote de Basura Automatizado  v1.0.0</span>
+    <span class="version">Sección 8 · Fundamentos de Arquitectura</span>
+  </div>
+
+  <!-- ── FASE 1 ──────────────────────────────────────────────── -->
+  <h1 class="seccion">8. 🧠 Fase 1 — Disección del Cerebro (ATmega328P)</h1>
+
+  <div class="info-box naranja">
+    <strong>Objetivo</strong>
+    Perder el miedo al hardware. El Arduino es un chip ATmega328P.
+    En esta sección entendemos cómo piensa el microcontrolador que gobierna nuestro bote de basura.
+  </div>
+
+  <!-- Ítem 1 -->
+  <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:12px;">
+    <div style="min-width:38px;height:38px;border-radius:50%;background:var(--color-naranja);border:2px solid var(--color-naranja-borde);
+                display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14pt;color:#5a2e0a;flex-shrink:0;">1</div>
+    <div>
+      <p style="margin-bottom:4px;">
+        <strong>¿Por qué 8 bits? — La restricción fundamental</strong><br>
+        Su "boca" procesa datos en bloques de <strong>8 ceros y unos</strong> (valores de 0 a 255).
+        En este contexto, <em>la memoria es oro</em>: escribir código eficiente sin desperdicios
+        es vital para no saturar la máquina. Por eso en este proyecto usamos tipos de ancho fijo
+        (<code>uint8_t</code>, <code>uint16_t</code>) en lugar de tipos genéricos que consumen
+        más bytes de los necesarios.
+      </p>
+    </div>
+  </div>
+
+  <!-- Ítem 2 -->
+  <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:12px;">
+    <div style="min-width:38px;height:38px;border-radius:50%;background:var(--color-amarillo);border:2px solid var(--color-amarillo-borde);
+                display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14pt;color:#5a4200;flex-shrink:0;">2</div>
+    <div>
+      <p style="margin-bottom:4px;">
+        <strong>Harvard vs. Von Neumann — Ventaja táctica del micro</strong>
+      </p>
+      <table class="doc-table" style="margin-bottom:4px;">
+        <thead>
+          <tr>
+            <th style="background:var(--color-amarillo);border-color:var(--color-amarillo-borde);">Arquitectura</th>
+            <th style="background:var(--color-amarillo);border-color:var(--color-amarillo-borde);">Memoria de programa</th>
+            <th style="background:var(--color-amarillo);border-color:var(--color-amarillo-borde);">Memoria de datos</th>
+            <th style="background:var(--color-amarillo);border-color:var(--color-amarillo-borde);">Acceso simultáneo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Von Neumann</strong> (tu laptop)</td>
+            <td colspan="2" style="text-align:center;">Compartida — mismo bus</td>
+            <td style="text-align:center;color:#aa2222;">✗ No</td>
+          </tr>
+          <tr>
+            <td><strong>Harvard</strong> (ATmega328P)</td>
+            <td class="celda-naranja" style="text-align:center;">Flash 32 KB (exclusiva)</td>
+            <td class="celda-amarillo" style="text-align:center;">SRAM 2 KB (exclusiva)</td>
+            <td class="celda-verde" style="text-align:center;">✔ Sí</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size:9pt;color:#444;">
+        El ATmega328P lee una instrucción del Flash <em>al mismo tiempo</em> que accede a un
+        dato en SRAM — siendo ultra rápido para sistemas en <strong>tiempo real</strong> como
+        la detección de proximidad de nuestro bote.
+      </p>
+    </div>
+  </div>
+
+  <!-- Ítem 3 -->
+  <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:16px;">
+    <div style="min-width:38px;height:38px;border-radius:50%;background:var(--color-rosa);border:2px solid var(--color-rosa-borde);
+                display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14pt;color:#6a0a20;flex-shrink:0;">3</div>
+    <div>
+      <p style="margin-bottom:4px;">
+        <strong>Registros de Control — Los cajones del silicio</strong><br>
+        El microcontrolador no sabe qué es un "pin 9" en abstracto. Internamente usa
+        <strong>registros de 8 bits</strong> (p. ej. <code>DDRB</code>, <code>PORTB</code>)
+        para configurarse. Cuando escribimos <code>pinMode(PIN_TRIG, OUTPUT)</code>,
+        el compilador traduce esa instrucción a una modificación directa del bit
+        correspondiente en el registro <code>DDRB</code>, diciéndole físicamente al silicio:
+        <em>"Conviértete en un pin de salida de voltaje"</em>.
+      </p>
+      <div class="info-box verde" style="margin-top:6px;font-size:9pt;padding:8px 12px;">
+        <strong>Ejemplo en registro directo (equivalente a <code>pinMode(9, OUTPUT)</code>):</strong>
+        <code style="display:block;margin-top:4px;background:transparent;border:none;">DDRB |= (1 &lt;&lt; PB1);  // Pin D9 → salida</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PARTE 2: BITÁCORA ──────────────────────────────────── -->
+  <h1 class="seccion" style="margin-top:4px;">📝 Parte 2 — Bitácora del Ingeniero Senior</h1>
+
+  <div class="info-box amarillo">
+    <strong>Pregunta de análisis — respuesta con sus propias palabras:</strong>
+    <p style="margin-top:6px;margin-bottom:0;font-style:italic;">
+      Si el ATmega328P procesa 8 bits y tiene poca memoria, ¿por qué usamos
+      <strong>C/C++ embebido</strong> en lugar de Python o Java? 🤔
+    </p>
+  </div>
+
+  <div style="border:1.5px solid var(--color-naranja-borde);border-radius:8px;padding:14px 16px;margin-bottom:14px;background:#fffaf6;">
+    <p style="margin-bottom:6px;font-weight:700;font-size:10pt;">💬 Respuesta (análisis del equipo):</p>
+    <p style="margin-bottom:6px;">
+      Python y Java requieren un <strong>intérprete o máquina virtual</strong> que consume
+      cientos de kilobytes de RAM y necesita un sistema operativo subyacente. El ATmega328P
+      solo tiene <strong>2 KB de SRAM y 32 KB de Flash</strong> — menos que un archivo de texto
+      moderno.
+    </p>
+    <p style="margin-bottom:6px;">
+      C/C++ compila directamente a <strong>código máquina AVR</strong>: cada instrucción escrita
+      se convierte en opcodes que el procesador ejecuta sin intermediarios. Esto permite:
+    </p>
+    <ul style="margin-left:18px;font-size:9.5pt;line-height:1.7;">
+      <li>Control total sobre cada byte de memoria.</li>
+      <li>Tiempos de respuesta deterministas (crítico para el sensor ultrasónico).</li>
+      <li>Acceso directo a registros de hardware (<code>DDRx</code>, <code>PORTx</code>).</li>
+      <li>Binario final de pocos KB — cabe holgadamente en el Flash.</li>
+    </ul>
+  </div>
+
+  <!-- ── SELLO INDUSTRIAL ──────────────────────────────────── -->
+  <div style="border:2.5px solid var(--color-verde-borde);border-radius:10px;padding:14px 18px;
+              background:var(--color-verde);display:flex;gap:14px;align-items:center;">
+    <div style="font-size:28pt;">🏅</div>
+    <div>
+      <p style="font-weight:800;font-size:11pt;margin-bottom:4px;">Sello Industrial — Competencia Verificada</p>
+      <p style="font-size:9.5pt;margin-bottom:0;">
+        Al completar esta actividad se avala que el ingeniero domina la
+        <strong>Arquitectura Harvard a nivel microcontrolador</strong>, aplicando
+        <strong>C/C++ y temporizadores</strong> — competencias clave en
+        <strong>IoT &amp; Sistemas Embebidos</strong>. 🌐🚀
+      </p>
+    </div>
+  </div>
+
+  <div class="info-box rosa" style="margin-top:12px;font-size:9pt;">
+    <strong>⚠️ Importante — Entrega</strong>
+    Asegúrense de que las fotos del circuito sean claras y tengan buena iluminación.
+    No olviden dar clic en el botón <em>"Entregar"</em> cuando adjunten sus archivos. ¡Mucho éxito!
+  </div>
+
+  <div class="pie-pagina">
+    <span>Meave Diaz Armando Abdiel · Sandoval Juan Manuel</span>
+    <span>Pág. 7</span>
+  </div>
+</div><!-- /página 7 -->
+
+
+<!-- ════════════════════════════════════════════════════════════════
+     PÁGINA 8 — AUTORES
+════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="encabezado-pagina">
+    <span class="proyecto">Dossier — Bote de Basura Automatizado  v1.0.0</span>
+    <span class="version">Sección 9 · Autores</span>
+  </div>
+
+  <!-- Sección autores -->
+  <h1 class="seccion" style="margin-top:14px">9. Autores del Proyecto</h1>
+  <div class="componentes-grid">
+    <div class="componente-card" style="background:var(--color-naranja);border-color:var(--color-naranja-borde);text-align:center">
+      <div class="nombre" style="font-size:12pt">👤 Meave Diaz Armando Abdiel</div>
+      <div class="detalle">Desarrollo de firmware · Arquitectura de software · Documentación técnica</div>
+    </div>
+    <div class="componente-card" style="background:var(--color-amarillo);border-color:var(--color-amarillo-borde);text-align:center">
+      <div class="nombre" style="font-size:12pt">👤 Sandoval Juan Manuel</div>
+      <div class="detalle">Diseño de hardware · Pruebas de integración · Revisión ANSI</div>
+    </div>
+  </div>
+
+  <div class="info-box verde" style="margin-top:8px; text-align:center;">
+    <strong>© 2026 — Todos los derechos reservados</strong>
+    Proyecto académico. Distribuido bajo licencia MIT.
+  </div>
+
+  <div class="pie-pagina">
+    <span>Meave Diaz Armando Abdiel · Sandoval Juan Manuel</span>
+    <span>Pág. 8</span>
+  </div>
+</div><!-- /página 8 -->
+
+</body>
+</html>

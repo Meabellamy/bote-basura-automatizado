@@ -1,0 +1,9 @@
+# Editor
+.vscode/
+
+# PDFs generados
+*.pdf
+
+# OS
+Thumbs.db
+.DS_Store
