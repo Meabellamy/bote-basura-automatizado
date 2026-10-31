@@ -55,8 +55,8 @@ static const uint8_t PIN_SERVO = 6U;   ///< Pin PWM del servomotor  (SALIDA PWM)
 
 /** @defgroup Servo Parámetros angulares del servomotor */
 /** @{ */
-static const uint8_t ANGULO_CERRADO = 0U;   ///< Ángulo para tapa cerrada (grados)
-static const uint8_t ANGULO_ABIERTO = 90U;  ///< Ángulo para tapa abierta (grados)
+static const uint8_t ANGULO_CERRADO = 90U;  ///< Ángulo para tapa cerrada (grados) — invertido por montaje físico del servo
+static const uint8_t ANGULO_ABIERTO = 0U;   ///< Ángulo para tapa abierta (grados) — invertido por montaje físico del servo
 /** @} */
 
 /** @defgroup Sensor Parámetros del sensor ultrasónico */
