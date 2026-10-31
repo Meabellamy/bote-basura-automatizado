@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manual de Usuario — Bote de Basura Automatizado</title>
+  <style>
+    :root {
+      --rosa:     #FFB3BA; --rosa-b:     #E07B85;
+      --amarillo: #FFF3B0; --amarillo-b: #C9A800;
+      --verde:    #B5EAD7; --verde-b:    #3D9970;
+      --naranja:  #FFDAB9; --naranja-b:  #D4845A;
+      --texto: #1a1a2e;
+      --f: 'Segoe UI', Arial, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body { font-family: var(--f); background: #eee; color: var(--texto); font-size: 11pt; line-height: 1.6; }
+
+    .page {
+      width: 210mm; min-height: 297mm;
+      background: #fff; margin: 16px auto; padding: 16mm 15mm 14mm;
+      box-shadow: 0 4px 18px rgba(0,0,0,.18);
+      position: relative; page-break-after: always;
+    }
+
+    /* ── Cabecera ── */
+    .header {
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 3px solid var(--naranja-b); padding-bottom: 6px; margin-bottom: 18px;
+      font-size: 8.5pt; color: #666;
+    }
+    .header strong { color: var(--texto); font-size: 9pt; }
+
+    /* ── Pie ── */
+    .footer {
+      position: absolute; bottom: 9mm; left: 15mm; right: 15mm;
+      display: flex; justify-content: space-between;
+      font-size: 8pt; color: #aaa; border-top: 1px solid #ddd; padding-top: 4px;
+    }
+
+    /* ── Títulos ── */
+    h1.sec {
+      font-size: 16pt; font-weight: 800;
+      border-left: 5px solid var(--naranja-b); padding-left: 10px;
+      margin-bottom: 14px;
+    }
+    h2.sub { font-size: 12pt; font-weight: 700; margin: 14px 0 8px; color: #333; }
+
+    p { margin-bottom: 8px; }
+
+    /* ── Cajas ── */
+    .box {
+      border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; font-size: 10pt;
+    }
+    .box strong { display: block; margin-bottom: 4px; font-size: 10.5pt; }
+    .box.verde    { background: var(--verde);    border-left: 5px solid var(--verde-b); }
+    .box.naranja  { background: var(--naranja);  border-left: 5px solid var(--naranja-b); }
+    .box.rosa     { background: var(--rosa);     border-left: 5px solid var(--rosa-b); }
+    .box.amarillo { background: var(--amarillo); border-left: 5px solid var(--amarillo-b); }
+
+    /* ── Pasos numerados ── */
+    .pasos { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+    .paso  { display: flex; gap: 14px; align-items: flex-start; }
+    .paso-num {
+      min-width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 13pt; flex-shrink: 0;
+      color: #fff;
+    }
+    .paso-txt { padding-top: 4px; font-size: 10pt; }
+    .paso-txt strong { display: block; margin-bottom: 2px; font-size: 10.5pt; }
+
+    /* ── Grid 2 col ── */
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .card {
+      border-radius: 8px; padding: 12px 14px;
+      border: 1.5px solid #ccc; font-size: 9.5pt;
+    }
+    .card .nom { font-weight: 700; font-size: 10.5pt; margin-bottom: 4px; }
+
+    /* ── Tabla ── */
+    table.t { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin-bottom: 12px; }
+    table.t th { padding: 7px 10px; text-align: left; font-size: 9pt;
+                 background: var(--naranja); border: 1px solid var(--naranja-b); }
+    table.t td { border: 1px solid #ccc; padding: 6px 10px; vertical-align: middle; }
+    table.t tr:nth-child(even) td { background: #fafafa; }
+    .c-verde    { background: var(--verde)    !important; font-weight: 600; }
+    .c-rosa     { background: var(--rosa)     !important; font-weight: 600; }
+    .c-amarillo { background: var(--amarillo) !important; font-weight: 600; }
+    .c-naranja  { background: var(--naranja)  !important; font-weight: 600; }
+
+    /* ── Portada ── */
+    .cover {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; min-height: 297mm; text-align: center;
+      background: linear-gradient(150deg, #fff 50%, var(--naranja) 100%);
+      padding: 20mm;
+    }
+    .cover .badge {
+      background: var(--naranja); border: 2px solid var(--naranja-b);
+      border-radius: 50%; width: 90px; height: 90px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 38pt; margin-bottom: 22px;
+      box-shadow: 0 4px 16px rgba(212,132,90,.35);
+    }
+    .cover h1 { font-size: 28pt; font-weight: 900; line-height: 1.1; margin-bottom: 6px; }
+    .cover .sub { font-size: 13pt; color: #555; font-style: italic; margin-bottom: 22px; }
+    .cover .sep { width: 70px; height: 4px; background: var(--naranja-b); border-radius: 2px; margin: 0 auto 22px; }
+    .cover .meta {
+      background: rgba(255,255,255,.8); border: 1px solid #ddd;
+      border-radius: 10px; padding: 16px 26px; text-align: left; width: 100%; max-width: 380px;
+    }
+    .cover .meta table { width: 100%; border-collapse: collapse; }
+    .cover .meta td { padding: 4px 8px; font-size: 10pt; vertical-align: top; }
+    .cover .meta td:first-child { font-weight: 700; color: #666; white-space: nowrap; width: 100px; }
+    .cover .tip {
+      margin-top: 20px; background: var(--verde);
+      border: 1.5px solid var(--verde-b); border-radius: 6px;
+      padding: 7px 16px; font-size: 9pt; font-weight: 700; color: #1a4a35;
+    }
+
+    /* ── Circuito SVG contenedor ── */
+    .svgbox { width: 100%; background: #fafafa; border: 1.5px solid #ddd;
+              border-radius: 10px; padding: 10px; margin-bottom: 12px; }
+
+    /* ── Alerta ── */
+    .alerta {
+      display: flex; gap: 12px; align-items: flex-start;
+      background: #fff8e1; border: 1.5px solid #f0c040;
+      border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; font-size: 9.5pt;
+    }
+    .alerta .ico { font-size: 18pt; flex-shrink: 0; }
+
+    /* ── Btn PDF ── */
+    .btn-pdf {
+      position: fixed; bottom: 22px; right: 22px;
+      background: var(--naranja-b); color: #fff; border: none;
+      border-radius: 50px; padding: 11px 24px; font-size: 10.5pt;
+      font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,.25);
+      z-index: 999; transition: background .2s;
+    }
+    .btn-pdf:hover { background: #b5643a; }
+
+    @media print {
+      body { background: #fff; }
+      .page { box-shadow: none; margin: 0; width: 100%; padding: 14mm 13mm 13mm; }
+      .btn-pdf { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<button class="btn-pdf" onclick="window.print()">⬇ Exportar PDF</button>
+
+<!-- ══════════════════════════════════════════════════════════
+     PORTADA
+══════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="cover">
+
+    <div class="badge">🗑️</div>
+
+    <h1>Manual de Usuario<br>Bote de Basura<br>Automatizado</h1>
+    <div class="sub">Guía de armado y uso paso a paso</div>
+    <div class="sep"></div>
+
+    <div class="meta">
+      <table>
+        <tr><td>Proyecto:</td> <td>Bote de Basura Automatizado</td></tr>
+        <tr><td>Versión:</td>  <td>1.0.0</td></tr>
+        <tr><td>Fecha:</td>    <td>24 de octubre de 2026</td></tr>
+        <tr><td>Público:</td>  <td>Usuario final / Armador</td></tr>
+        <tr><td>Autores:</td>  <td>Meave Diaz Armando Abdiel<br>Sandoval Juan Manuel</td></tr>
+      </table>
+    </div>
+
+    <div class="tip">📖 No se requieren conocimientos técnicos para armarlo</div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     PÁGINA 2 — ¿QUÉ ES Y QUÉ NECESITAS?
+══════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="header">
+    <strong>Manual de Usuario — Bote de Basura Automatizado</strong>
+    <span>Sección 1 · Introducción y materiales</span>
+  </div>
+
+  <h1 class="sec">1. ¿Qué es y cómo funciona?</h1>
+
+  <div class="box naranja">
+    <strong>💡 En una frase</strong>
+    Acerca la mano al sensor → la tapa se abre sola → deposita la basura → la tapa se cierra a los 3 segundos. Sin tocar nada.
+  </div>
+
+  <p>
+    El bote tiene un pequeño sensor invisible al frente. Cuando detecta tu mano a menos de
+    <strong>20 cm</strong>, manda una señal a un motorecillo que levanta la tapa. No importa si
+    llevas las manos sucias o llenas — nunca necesitas tocar el bote.
+  </p>
+
+  <!-- Diagrama de funcionamiento simple -->
+  <div class="svgbox">
+    <svg viewBox="0 0 520 90" xmlns="http://www.w3.org/2000/svg"
+         font-family="'Segoe UI',Arial,sans-serif" font-size="10" style="width:100%;display:block;">
+
+      <!-- Paso 1 -->
+      <rect x="10"  y="15" width="100" height="58" rx="8" fill="#FFF3B0" stroke="#C9A800" stroke-width="1.5"/>
+      <text x="60"  y="36" text-anchor="middle" font-size="18">🖐️</text>
+      <text x="60"  y="53" text-anchor="middle" font-weight="700" font-size="9">Acercas</text>
+      <text x="60"  y="65" text-anchor="middle" font-size="9">la mano</text>
+
+      <text x="130" y="47" text-anchor="middle" font-size="18" fill="#888">→</text>
+
+      <!-- Paso 2 -->
+      <rect x="148" y="15" width="100" height="58" rx="8" fill="#FFDAB9" stroke="#D4845A" stroke-width="1.5"/>
+      <text x="198" y="36" text-anchor="middle" font-size="18">📡</text>
+      <text x="198" y="53" text-anchor="middle" font-weight="700" font-size="9">Sensor</text>
+      <text x="198" y="65" text-anchor="middle" font-size="9">detecta (&lt; 20 cm)</text>
+
+      <text x="268" y="47" text-anchor="middle" font-size="18" fill="#888">→</text>
+
+      <!-- Paso 3 -->
+      <rect x="286" y="15" width="100" height="58" rx="8" fill="#FFB3BA" stroke="#E07B85" stroke-width="1.5"/>
+      <text x="336" y="36" text-anchor="middle" font-size="18">🔓</text>
+      <text x="336" y="53" text-anchor="middle" font-weight="700" font-size="9">Tapa</text>
+      <text x="336" y="65" text-anchor="middle" font-size="9">se abre (90°)</text>
+
+      <text x="406" y="47" text-anchor="middle" font-size="18" fill="#888">→</text>
+
+      <!-- Paso 4 -->
+      <rect x="422" y="15" width="88" height="58" rx="8" fill="#B5EAD7" stroke="#3D9970" stroke-width="1.5"/>
+      <text x="466" y="36" text-anchor="middle" font-size="18">🔒</text>
+      <text x="466" y="53" text-anchor="middle" font-weight="700" font-size="9">Cierre auto</text>
+      <text x="466" y="65" text-anchor="middle" font-size="9">en 3 segundos</text>
+    </svg>
+  </div>
+
+  <!-- ── Materiales ── -->
+  <h1 class="sec" style="margin-top:16px">2. Lo que necesitas</h1>
+
+  <div class="grid2">
+    <div class="card" style="background:var(--naranja);border-color:var(--naranja-b)">
+      <div class="nom">🟧 Arduino UNO</div>
+      El cerebro del sistema. Se conecta a la PC solo para programarlo — una sola vez.
+    </div>
+    <div class="card" style="background:var(--amarillo);border-color:var(--amarillo-b)">
+      <div class="nom">🟨 Sensor HC-SR04</div>
+      El "ojo" del bote. Mide distancias con ultrasonido, como los sensores de reversa de un carro.
+    </div>
+    <div class="card" style="background:var(--rosa);border-color:var(--rosa-b)">
+      <div class="nom">🟥 Servomotor SG-90</div>
+      El músculo. Un motor pequeño que gira exactamente los grados necesarios para abrir y cerrar la tapa.
+    </div>
+    <div class="card" style="background:var(--verde);border-color:var(--verde-b)">
+      <div class="nom">🟩 Cables Dupont</div>
+      Los que conectan todo. Son enchufables — no se necesita soldar nada.
+    </div>
+  </div>
+
+  <div class="alerta">
+    <div class="ico">⚡</div>
+    <div>
+      <strong style="display:block;margin-bottom:2px;">Alimentación</strong>
+      El sistema funciona con el cable USB del Arduino enchufado a cualquier cargador de celular (5 V)
+      o a una power bank. No necesita baterías especiales ni fuente de voltaje extra.
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Meave Diaz Armando Abdiel · Sandoval Juan Manuel</span>
+    <span>Pág. 2</span>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     PÁGINA 3 — CÓMO ARMARLO (conexiones)
+══════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="header">
+    <strong>Manual de Usuario — Bote de Basura Automatizado</strong>
+    <span>Sección 3 · Armado del circuito</span>
+  </div>
+
+  <h1 class="sec">3. Cómo armarlo — Conexiones</h1>
+
+  <div class="box verde">
+    <strong>✅ Antes de empezar</strong>
+    Desconecta el USB del Arduino mientras haces las conexiones.
+    Una vez que todo esté conectado, enchufas y listo.
+  </div>
+
+  <!-- Diagrama SVG del circuito -->
+  <div class="svgbox">
+    <svg viewBox="0 0 540 230" xmlns="http://www.w3.org/2000/svg"
+         font-family="'Segoe UI',Arial,sans-serif" font-size="9.5" style="width:100%;display:block;">
+
+      <!-- ── Arduino UNO (centro) ── -->
+      <rect x="185" y="30" width="170" height="170" rx="10"
+            fill="#FFDAB9" stroke="#D4845A" stroke-width="2"/>
+      <text x="270" y="55"  text-anchor="middle" font-weight="800" font-size="12" fill="#5a2e0a">Arduino UNO</text>
+      <text x="270" y="72"  text-anchor="middle" font-size="9" fill="#5a2e0a">ATmega328P</text>
+
+      <!-- Pines lado izquierdo (sensor) -->
+      <rect x="148" y="80"  width="37" height="18" rx="3" fill="#FFF3B0" stroke="#C9A800" stroke-width="1.5"/>
+      <text x="166" y="93"  text-anchor="middle" font-weight="700" fill="#5a4200">D9</text>
+
+      <rect x="148" y="104" width="37" height="18" rx="3" fill="#FFF3B0" stroke="#C9A800" stroke-width="1.5"/>
+      <text x="166" y="117" text-anchor="middle" font-weight="700" fill="#5a4200">D10</text>
+
+      <!-- Pines lado derecho (servo) -->
+      <rect x="355" y="92"  width="44" height="18" rx="3" fill="#FFB3BA" stroke="#E07B85" stroke-width="1.5"/>
+      <text x="377" y="105" text-anchor="middle" font-weight="700" fill="#6a0a20">D6 PWM</text>
+
+      <!-- Pines alimentación izq -->
+      <rect x="148" y="130" width="37" height="18" rx="3" fill="#B5EAD7" stroke="#3D9970" stroke-width="1.5"/>
+      <text x="166" y="143" text-anchor="middle" font-weight="700" fill="#1a4a35">5 V</text>
+      <rect x="148" y="152" width="37" height="18" rx="3" fill="#B5EAD7" stroke="#3D9970" stroke-width="1.5"/>
+      <text x="166" y="165" text-anchor="middle" font-weight="700" fill="#1a4a35">GND</text>
+
+      <!-- Pines alimentación der -->
+      <rect x="355" y="116" width="44" height="18" rx="3" fill="#B5EAD7" stroke="#3D9970" stroke-width="1.5"/>
+      <text x="377" y="129" text-anchor="middle" font-weight="700" fill="#1a4a35">5 V</text>
+      <rect x="355" y="140" width="44" height="18" rx="3" fill="#B5EAD7" stroke="#3D9970" stroke-width="1.5"/>
+      <text x="377" y="153" text-anchor="middle" font-weight="700" fill="#1a4a35">GND</text>
+
+      <!-- ── HC-SR04 (izquierda) ── -->
+      <rect x="10" y="70" width="120" height="110" rx="8"
+            fill="#FFF3B0" stroke="#C9A800" stroke-width="2"/>
+      <text x="70" y="90"  text-anchor="middle" font-weight="800" font-size="11" fill="#5a4200">HC-SR04</text>
+      <text x="70" y="105" text-anchor="middle" font-size="9" fill="#5a4200">Sensor ultrasónico</text>
+
+      <!-- Pines HC-SR04 -->
+      <rect x="86" y="112" width="44" height="16" rx="3" fill="#FFF3B0" stroke="#C9A800" stroke-width="1.2"/>
+      <text x="108" y="124" text-anchor="middle" font-size="8.5" fill="#5a4200">TRIG</text>
+
+      <rect x="86" y="132" width="44" height="16" rx="3" fill="#FFF3B0" stroke="#C9A800" stroke-width="1.2"/>
+      <text x="108" y="144" text-anchor="middle" font-size="8.5" fill="#5a4200">ECHO</text>
+
+      <rect x="86" y="152" width="44" height="14" rx="3" fill="#B5EAD7" stroke="#3D9970" stroke-width="1.2"/>
+      <text x="108" y="163" text-anchor="middle" font-size="8.5" fill="#1a4a35">VCC</text>
+
+      <rect x="86" y="170" width="44" height="14" rx="3" fill="#B5EAD7" stroke="#3D9970" stroke-width="1.2"/>
+      <text x="108" y="181" text-anchor="middle" font-size="8.5" fill="#1a4a35">GND</text>
+
+      <!-- ── Servomotor (derecha) ── -->
+      <rect x="410" y="70" width="120" height="110" rx="8"
+            fill="#FFB3BA" stroke="#E07B85" stroke-width="2"/>
+      <text x="470" y="90"  text-anchor="middle" font-weight="800" font-size="11" fill="#6a0a20">Servo SG-90</text>
+      <text x="470" y="105" text-anchor="middle" font-size="9" fill="#6a0a20">Servomotor</text>
+
+      <rect x="410" y="112" width="60" height="16" rx="3" fill="#FFB3BA" stroke="#E07B85" stroke-width="1.2"/>
+      <text x="440" y="124" text-anchor="middle" font-size="8.5" fill="#6a0a20">Signal 🟠</text>
+
+      <rect x="410" y="132" width="60" height="14" rx="3" fill="#B5EAD7" stroke="#3D9970" stroke-width="1.2"/>
+      <text x="440" y="143" text-anchor="middle" font-size="8.5" fill="#1a4a35">VCC 🔴</text>
+
+      <rect x="410" y="150" width="60" height="14" rx="3" fill="#B5EAD7" stroke="#3D9970" stroke-width="1.2"/>
+      <text x="440" y="161" text-anchor="middle" font-size="8.5" fill="#1a4a35">GND ⚫</text>
+
+      <!-- ── Cables ── -->
+      <!-- TRIG D9 -->
+      <line x1="130" y1="120" x2="148" y2="89" stroke="#C9A800" stroke-width="2" stroke-dasharray="4,2"/>
+      <!-- ECHO D10 -->
+      <line x1="130" y1="140" x2="148" y2="113" stroke="#C9A800" stroke-width="2" stroke-dasharray="4,2"/>
+      <!-- VCC sensor -->
+      <line x1="130" y1="159" x2="148" y2="139" stroke="#3D9970" stroke-width="2" stroke-dasharray="4,2"/>
+      <!-- GND sensor -->
+      <line x1="130" y1="177" x2="148" y2="161" stroke="#3D9970" stroke-width="2" stroke-dasharray="4,2"/>
+
+      <!-- Signal servo -->
+      <line x1="410" y1="120" x2="399" y2="101" stroke="#E07B85" stroke-width="2" stroke-dasharray="4,2"/>
+      <!-- VCC servo -->
+      <line x1="410" y1="139" x2="399" y2="125" stroke="#3D9970" stroke-width="2" stroke-dasharray="4,2"/>
+      <!-- GND servo -->
+      <line x1="410" y1="157" x2="399" y2="149" stroke="#3D9970" stroke-width="2" stroke-dasharray="4,2"/>
+
+      <!-- USB label -->
+      <rect x="220" y="178" width="100" height="20" rx="5" fill="#e0e0e0" stroke="#aaa" stroke-width="1.5"/>
+      <text x="270" y="193" text-anchor="middle" font-size="9" fill="#444">🔌 USB → Corriente</text>
+    </svg>
+  </div>
+
+  <!-- Tabla de cables -->
+  <h2 class="sub">Cable por cable — qué va dónde</h2>
+
+  <table class="t">
+    <thead>
+      <tr><th>Cable</th><th>Desde (Arduino)</th><th>Hacia (Componente)</th><th>Color típico</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td class="c-naranja">Pin D9</td><td class="c-amarillo">HC-SR04 → TRIG</td><td>Cualquiera</td></tr>
+      <tr><td>2</td><td class="c-amarillo">Pin D10</td><td class="c-amarillo">HC-SR04 → ECHO</td><td>Cualquiera</td></tr>
+      <tr><td>3</td><td class="c-rosa">Pin D6 (PWM)</td><td class="c-rosa">Servo → Signal (cable naranja/amarillo)</td><td>Naranja</td></tr>
+      <tr><td>4</td><td class="c-verde">5 V</td><td class="c-verde">HC-SR04 → VCC</td><td>Rojo</td></tr>
+      <tr><td>5</td><td class="c-verde">5 V</td><td class="c-verde">Servo → VCC (cable rojo)</td><td>Rojo</td></tr>
+      <tr><td>6</td><td class="c-verde">GND</td><td class="c-verde">HC-SR04 → GND</td><td>Negro</td></tr>
+      <tr><td>7</td><td class="c-verde">GND</td><td class="c-verde">Servo → GND (cable marrón/negro)</td><td>Negro</td></tr>
+    </tbody>
+  </table>
+
+  <div class="footer">
+    <span>Meave Diaz Armando Abdiel · Sandoval Juan Manuel</span>
+    <span>Pág. 3</span>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     PÁGINA 4 — CARGA DEL CÓDIGO Y USO
+══════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="header">
+    <strong>Manual de Usuario — Bote de Basura Automatizado</strong>
+    <span>Sección 4 · Cargar el código y usar el bote</span>
+  </div>
+
+  <h1 class="sec">4. Cargar el programa (una sola vez)</h1>
+
+  <p>Esto se hace una única vez. Después el bote funciona solo cada vez que lo enchufas.</p>
+
+  <div class="pasos">
+    <div class="paso">
+      <div class="paso-num" style="background:var(--naranja-b)">1</div>
+      <div class="paso-txt">
+        <strong>Descarga el IDE de Arduino</strong>
+        Entra a <em>arduino.cc/en/software</em> e instala el programa gratuito. Elige la versión para tu sistema operativo.
+      </div>
+    </div>
+    <div class="paso">
+      <div class="paso-num" style="background:var(--naranja-b)">2</div>
+      <div class="paso-txt">
+        <strong>Abre el archivo del proyecto</strong>
+        Ve a la carpeta <code>src/</code> y abre el archivo <code>bote_basura.ino</code> con el IDE de Arduino.
+      </div>
+    </div>
+    <div class="paso">
+      <div class="paso-num" style="background:var(--naranja-b)">3</div>
+      <div class="paso-txt">
+        <strong>Conecta el Arduino por USB</strong>
+        Usa el cable USB que viene con el Arduino. La computadora lo reconocerá automáticamente.
+      </div>
+    </div>
+    <div class="paso">
+      <div class="paso-num" style="background:var(--naranja-b)">4</div>
+      <div class="paso-txt">
+        <strong>Selecciona la placa y el puerto</strong>
+        En el IDE: <em>Herramientas → Placa → Arduino UNO</em> y luego <em>Herramientas → Puerto → COM&#x23; (el que aparezca)</em>.
+      </div>
+    </div>
+    <div class="paso">
+      <div class="paso-num" style="background:var(--verde-b)">5</div>
+      <div class="paso-txt">
+        <strong>Presiona el botón "Subir" →</strong>
+        Es la flecha apuntando a la derecha en la barra superior. Espera unos segundos hasta que aparezca <em>"Carga completa"</em>.
+        ¡Listo! El Arduino ya tiene el programa.
+      </div>
+    </div>
+  </div>
+
+  <div class="box verde">
+    <strong>✅ ¿Cómo sé que funcionó?</strong>
+    En cuanto termine la carga, el servo se mueve brevemente a la posición de cerrado. Eso confirma que el programa está corriendo.
+  </div>
+
+  <!-- ── CÓMO USARLO ── -->
+  <h1 class="sec" style="margin-top:14px">5. Cómo usar el bote</h1>
+
+  <div class="grid2">
+    <div class="card" style="background:var(--amarillo);border-color:var(--amarillo-b);text-align:center">
+      <div style="font-size:28pt;margin-bottom:6px">🖐️</div>
+      <div class="nom">Acerca la mano</div>
+      Pon la mano frente al sensor a menos de 20 cm. No necesitas tocar nada.
+    </div>
+    <div class="card" style="background:var(--rosa);border-color:var(--rosa-b);text-align:center">
+      <div style="font-size:28pt;margin-bottom:6px">🔓</div>
+      <div class="nom">La tapa se abre</div>
+      El servo gira y levanta la tapa automáticamente en menos de 1 segundo.
+    </div>
+    <div class="card" style="background:var(--verde);border-color:var(--verde-b);text-align:center">
+      <div style="font-size:28pt;margin-bottom:6px">🗑️</div>
+      <div class="nom">Tira la basura</div>
+      Tienes 3 segundos para depositar lo que necesitas. La tapa se mantiene abierta.
+    </div>
+    <div class="card" style="background:var(--naranja);border-color:var(--naranja-b);text-align:center">
+      <div style="font-size:28pt;margin-bottom:6px">🔒</div>
+      <div class="nom">Cierre automático</div>
+      Sin hacer nada, la tapa se cierra sola a los 3 segundos. El bote queda listo.
+    </div>
+  </div>
+
+  <div class="alerta">
+    <div class="ico">💡</div>
+    <div>
+      <strong style="display:block;margin-bottom:2px;">Tip de uso</strong>
+      Si necesitas más tiempo con la tapa abierta — por ejemplo para vaciar un recipiente grande —
+      puedes mantener la mano frente al sensor. Mientras detecte proximidad, el ciclo se reinicia.
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Meave Diaz Armando Abdiel · Sandoval Juan Manuel</span>
+    <span>Pág. 4</span>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     PÁGINA 5 — SOLUCIÓN DE PROBLEMAS
+══════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="header">
+    <strong>Manual de Usuario — Bote de Basura Automatizado</strong>
+    <span>Sección 5 · Solución de problemas</span>
+  </div>
+
+  <h1 class="sec">6. Algo no funciona — Solución rápida</h1>
+
+  <table class="t">
+    <thead>
+      <tr><th>Síntoma</th><th>Causa probable</th><th>Solución</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>🔴 La tapa no abre aunque acerco la mano</td>
+        <td>Mano muy lejos o cable TRIG/ECHO suelto</td>
+        <td>Acércate a menos de 20 cm · Revisa que D9→TRIG y D10→ECHO estén bien conectados</td>
+      </tr>
+      <tr>
+        <td>🟡 La tapa abre y cierra sola sin que nadie se acerque</td>
+        <td>El sensor está viendo un objeto fijo cercano (pared, mueble)</td>
+        <td>Reubica el bote para que no haya obstáculos a menos de 20 cm frente al sensor</td>
+      </tr>
+      <tr>
+        <td>🟠 El servo vibra o tiembla pero no gira bien</td>
+        <td>Falta de corriente — el USB no da suficiente amperaje</td>
+        <td>Usa un cargador de al menos 1 A, o alimenta el servo con fuente externa de 5 V compartiendo GND</td>
+      </tr>
+      <tr>
+        <td>⚫ No pasa nada al enchufar el USB</td>
+        <td>El programa no está cargado o el Arduino no tiene energía</td>
+        <td>Verifica que el LED verde del Arduino enciende · Repite el paso de carga del programa</td>
+      </tr>
+      <tr>
+        <td>🔵 La tapa abre pero no cierra</td>
+        <td>El servo está físicamente bloqueado</td>
+        <td>Verifica que la tapa no esté atorada mecánicamente y que el brazo del servo tenga libertad de movimiento</td>
+      </tr>
+      <tr>
+        <td>🟣 El IDE no detecta el Arduino (sin puerto COM)</td>
+        <td>Falta el driver CH340 o cable USB solo de carga</td>
+        <td>Instala el driver CH340 desde internet · Usa un cable USB con datos (no solo carga)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Mantenimiento -->
+  <h1 class="sec" style="margin-top:16px">7. Mantenimiento</h1>
+
+  <div class="pasos">
+    <div class="paso">
+      <div class="paso-num" style="background:var(--verde-b)">✔</div>
+      <div class="paso-txt">
+        <strong>Limpia el sensor periódicamente</strong>
+        El HC-SR04 tiene dos "ojos" redondos de aluminio. Si se acumula polvo o suciedad encima, la detección falla. Límpialo con un paño seco cada 2 semanas.
+      </div>
+    </div>
+    <div class="paso">
+      <div class="paso-num" style="background:var(--verde-b)">✔</div>
+      <div class="paso-txt">
+        <strong>Revisa las conexiones si el bote deja de responder</strong>
+        Los cables Dupont pueden aflojarse con el uso. Desenchufa el USB, revisa que todos los cables estén bien insertados y vuelve a enchufar.
+      </div>
+    </div>
+    <div class="paso">
+      <div class="paso-num" style="background:var(--verde-b)">✔</div>
+      <div class="paso-txt">
+        <strong>No mojes el circuito</strong>
+        Los componentes no son resistentes al agua. Mantén el bote alejado de líquidos. Si necesitas limpiarlo, desenchufa el USB primero.
+      </div>
+    </div>
+  </div>
+
+  <div class="box naranja" style="margin-top:10px">
+    <strong>📞 ¿Más dudas?</strong>
+    Consulta el <strong>Dossier Técnico</strong> (<code>docs/dossier.html</code>) donde encontrarás el
+    diagrama de flujo completo, el mapeo de pines detallado y el código fuente documentado.
+  </div>
+
+  <div style="margin-top:16px;text-align:center;font-size:9pt;color:#888;border-top:1px solid #ddd;padding-top:10px;">
+    <strong>Bote de Basura Automatizado v1.0.0</strong> &nbsp;·&nbsp;
+    Meave Diaz Armando Abdiel &amp; Sandoval Juan Manuel &nbsp;·&nbsp; 2026 &nbsp;·&nbsp; MIT
+  </div>
+
+  <div class="footer">
+    <span>Meave Diaz Armando Abdiel · Sandoval Juan Manuel</span>
+    <span>Pág. 5</span>
+  </div>
+</div>
+
+</body>
+</html>
